@@ -6,14 +6,16 @@ mainMenu: .asciiz "\t---- Menu ----\t\n\t1)Adivina la carta\n\t2)Tabla de Posici
 inputOption: .asciiz "\tIngrese una opcion: "
 inputPalo: .asciiz "\tIngrese un palo: "
 inputNumero: .asciiz "\tIngrese un  numero entre el 1 al 10: "
-paloAdivinado: .asciiz "\t¡El palo de carta es correcto! "
-paloEsRojo: .asciiz "\t¡El palo de la carta es color Rojo! "
-paloEsNegro: .asciiz "\t¡El palo de la carta es color Negro! "
+paloAdivinado: .asciiz "\n\t¡El palo de carta es correcto! "
+numAdivinado: .asciiz "\n\t¡El numero de carta es correcto! "
+paloEsRojo: .asciiz "\n\t¡El palo de la carta es color Rojo! "
+paloEsNegro: .asciiz "\n\t¡El palo de la carta es color Negro! "
 mensajeError: .asciiz "\tIngrese un numero que sea valido\n"
 juego1: .asciiz "\n\tTiene 3 oportunidades para adivinar una carta que la computadora ha seleccionado al azar.\n\tUna carta esta compuesta de un numero entre 1-10 y un palo (tipo de carta).\n"
 mostrarPalos: .asciiz "\n\tEscoja un palo:\n\t1)Corazon\n\t2)Brillo\n\t3)Trebol\n\t4)Picas\n"
-esMayor: .asciiz "\n\tEl numero oculto es mas alto!"
-esMenor: .asciiz "\n\tEl numero oculto es mas bajo!"
+esMayor: .asciiz "\n\t¡El numero oculto es mas alto!"
+esMenor: .asciiz "\n\t¡El numero oculto es mas bajo!"
+saltoLinea: .asciiz "\n"
 .text
 
 main:
@@ -132,6 +134,9 @@ option1:
 
         jal compararPalo
 
+        move 	$a0, $s2		# $a0 = $s2 / En $a0 el número del jugador
+        move    $a1, $s4        # $a1 = $s4 / En $a1 el número aleatorio de la máquina
+
         jal compararNumero
 
         #  PARA EL PALO  
@@ -145,33 +150,43 @@ option2:
     j Exit
 
 
-#una funcion, que recibe  2 numeros a y b <- usuario
-#imprime si  b<a: el palo es mas alto 
-#si b>a  el palo es mas bajo 
+#Función que compara el número del usuario con el de la máquina
+#
 
 compararNumero:
     addi $sp,$sp,-12
     sw $ra, 0($sp)
-    sw $a0, 4($sp) #<-- numero aleatorio
-    sw $a1, 8($sp)  # <-- numero del usuario
+    sw $a0, 4($sp)  #<-- EL NUMERO DEL JUGADOR
+    sw $a1, 8($sp)  #<-- EL NUMERO DE LA MAQUINA
 
-    slt $t0,$a0,$a1  #a<b
-    beq $t0,0,mostrarMenor 
-    la	$a0, esMayor   
+    beq		$a0, $a1, numCorrecto	# if $a0 == $a1 then numCorrecto
+
+    slt $t0,$a0,$a1  # numJugador < numMaquina
+    beq $t0, 1, mostrarMayor 
+    
+    la	$a0, esMenor   
     li	$v0, 4		
     syscall
-    j fin
+    j outComparacionNum
 
-    mostrarMenor: 
-        la		$a0, esMenor   
-        li		$v0, 4		
-        syscall
+    mostrarMayor: 
+    la		$a0, esMayor   
+    li		$v0, 4		
+    syscall
+    j outComparacionNum
 
-    fin: 
-        lw $ra, 0($sp)
-        lw $a0, 4($sp) #<-- numero aleatorio
-        lw $a1, 8($sp)  # <-- numero del usuario
-        addi	$sp, $sp, 8			    # $sp = $sp + 8
+    numCorrecto:
+    la      $a0, numAdivinado
+    li      $v0, 4
+    syscall
+
+    outComparacionNum:
+    lw		$ra, 0($sp)		 
+    lw		$a0, 4($sp) #<-- EL NUMERO DEL JUGADOR
+    lw		$a1, 8($sp) #<-- EL NUMERO DE LA MAQUINA
+    addi	$sp, $sp, 8			    # $sp = $sp + 8
+    jr		$ra					    # jump to $ra
+
     	
 
 #compararPalo recibe el palo del jugador y de la computadora
@@ -195,20 +210,20 @@ compararPalo:
     la      $a0, paloEsRojo
     li      $v0, 4
     syscall
-    j		outComparacion				# jump to outComparacion
+    j		outComparacionPalo				# jump to outComparacionPalo
     
     paloNegro:
     la      $a0, paloEsNegro
     li      $v0, 4
     syscall
-    j		outComparacion				# jump to outComparacion
+    j		outComparacionPalo				# jump to outComparacionPalo
     
     paloCorrecto:
     la      $a0, paloAdivinado
     li      $v0, 4
     syscall
 
-    outComparacion:
+    outComparacionPalo:
     lw		$ra, 0($sp)		 
     lw		$a0, 4($sp) #<-- EL PALO DEL JUGADOR
     lw		$a1, 8($sp) #<-- EL PALO DE LA MÁQUINA
