@@ -4,7 +4,11 @@ numA: .space 4
 elPadrino: .asciiz "\t---- Casino: El Padrino ----\t\n"
 mainMenu: .asciiz "\t---- Menu ----\t\n\t1)Adivina la carta\n\t2)Tabla de Posiciones\n\t3)Salir\n"
 inputOption: .asciiz "\tIngrese una opcion: "
+inputPalo: .asciiz "\tIngrese un palo: "
 inputNumero: .asciiz "\tIngrese un  numero entre el 1 al 10: "
+paloAdivinado: .asciiz "\t¡El palo de carta es correcto! "
+paloEsRojo: .asciiz "\t¡El palo de la carta es color Rojo! "
+paloEsNegro: .asciiz "\t¡El palo de la carta es color Negro! "
 mensajeError: .asciiz "\tIngrese un numero que sea valido\n"
 juego1: .asciiz "\n\tTiene 3 oportunidades para adivinar una carta que la computadora ha seleccionado al azar.\n\tUna carta esta compuesta de un numero entre 1-10 y un palo (tipo de carta).\n"
 mostrarPalos: .asciiz "\n\tEscoja un palo:\n\t1)Corazon\n\t2)Brillo\n\t3)Trebol\n\t4)Picas\n"
@@ -30,74 +34,103 @@ menu:
     syscall
     move 	$t0, $v0		    # $t0 = $v0
 
-    beq		$t0, 1, option1	    # if $t0 == $s1 then option1
-    beq		$t0, 2, option2	    # if $t0 == $s2 then option2
-    beq		$t0, 3, Exit	    # if $t0 == $s3 then Exit
+    beq		$t0, 1, option1	    # if $t0 == 1 then option1
+    beq		$t0, 2, option2	    # if $t0 == 2 then option2
+    beq		$t0, 3, Exit	    # if $t0 == 3 then Exit
     j error
 
 option1:
-    li      $v0, 4
+    li      $v0, 4              #Imprime las reglas del juego
     la      $a0, juego1
     syscall
+
     #CREAR EL  NUMERO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
-    li		$a1, 10		        #Límite superior del número aleatorio en 11 sin incluir
+    li		$a1, 10		        #Límite superior del número aleatorio en 10 sin incluir
     li		$v0, 42		        #Generar número aleatorio en $a0
     syscall
-
-    addi	$a0, $a0, 1			# $a0 = $a0 + 1 / Sumamos 1 para tener un random entre 1 y 4, en vez de 0 y 3
+    
+    addi	$a1, $a1, 1			# $a1 = $a1 + 1 / Sumamos 1 para tener un random entre 1 y 10, en vez de 0 y 9
+    
     sw $a0, numA
-    #CREAR EL  PALO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
+
+    #CREAR EL PALO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
     li		$a1, 4		        #Límite superior del número aleatorio en 11 sin incluir
     li		$v0, 42		        #Generar número aleatorio en $a0
     syscall
 
     addi	$a0, $a0, 1			# $a0 = $a0 + 1 / Sumamos 1 para tener un random entre 1 y 4, en vez de 0 y 3
+    
     sw $a0, paloA
+    
     #TODO 
 
     li      $v0, 4
-    la      $a0, mostrarPalos
+    la      $a0, mostrarPalos       # Muestra los números para los palos
     syscall
     
-    li		$s0, 0		        # $s0 = 0 Contador del bucle
+    li		$s0, 0		            # $s0 = 0 Contador del bucle
 
     bucleJuego:
-        la		$a0, inputOption    # Muestra de Ingresar una opción
+        # PARTE DEL PALO
+        la		$a0, inputPalo    # Muestra de Ingresar un palo al jugador
         li		$v0, 4		
         syscall
 
-        li		$v0, 5		        #Agarrar input de un integer
+        li		$v0, 5		        # Agarrar input de un integer
         syscall
         move 	$a0, $v0		    # $a0 = Valor ingresado por el usuario
         
-        li $a1, 5     #Solo hay 4 palos
+        li $a1, 5                   # Solo hay 4 palos
 
-        jal verificarOpcion         #Verificación de la opción ingresada por el usuario
+        jal verificarOpcion         # Verificación de la opción ingresada por el usuario}
+
+        move 	$s1, $a0		    # $s1 = $a0 / SE ALMACENA EL PALO DEL JUGADOR EN S1
         
-        move 	$t0, $a0		    # $t0 = $a0, opción del usuario en $t0
-
-        li      $v0, 4
+        # PARTE DEL NUMERO
         la      $a0, inputNumero
+        li      $v0, 4
         syscall
 
         li		$v0, 5		        #Agarrar input de un integer
         syscall	
-
         move 	$a0, $v0		    # $a0 = Valor ingresado por el usuario
         
-        li $a1, 11   #Solo hay 10 cartas
+        li $a1, 11                  #Solo hay 10 cartas
+        
         jal verificarOpcion    
 
-        move 	$t1, $a0    # el numero del 1 al 10 
-        lw  	$t2, numA		    # $a1 = $t0
+        move 	$s2, $a0		    # $s1 = $a0 / SE ALMACENA EL NÚMERO DEL JUGADOR EN S2
+        
+        lw  	$s3, paloA		    # Se carga paloA en $s3
+        lw      $s4, numA           # Se carga numA en $s4
 
+        #############IMPRESIÓN DE VERIFICACION#########################
+        li		$v0, 1		    # $v0 = 1
+        move 	$a0, $s1		# $a0 = $s1
+        syscall
 
-      
- 
+        li		$v0, 1		    # $v0 = 1
+        move 	$a0, $s2		# $a0 = $s1
+        syscall
+
+        li		$v0, 1		    # $v0 = 1
+        move 	$a0, $s3		# $a0 = $s1
+        syscall
+
+        li		$v0, 1		    # $v0 = 1
+        move 	$a0, $s4		# $a0 = $s1
+        syscall
+        #################################################################
+        
         #t0 palo usuario 
         #t1 numero usuario 
         #t2 numero aleatorio
         # jal compararPalo
+
+        move 	$a0, $s1		# $a0 = $s1 / En $a0 el palo del jugador
+        move    $a1, $s3        # $a1 = $s3 / En $a1 el palo aleatorio de la máquina
+
+        jal compararPalo
 
         jal compararNumero
 
@@ -142,9 +175,45 @@ compararNumero:
     	
 
 #compararPalo recibe el palo del jugador y de la computadora
-#devuelve 1 si el palo es el mismo, devuelve 2 si el palo es otro
+#Imprime si el palo es correcto si adivina, de lo contrario indica el color del palo a adivinar
 
 compararPalo:                       
+    addi	$sp, $sp, -8		    # $sp = $sp - 8
+    sw		$ra, 0($sp)		 
+    sw		$a0, 4($sp) #<-- EL PALO DEL JUGADOR
+    sw		$a1, 8($sp) #<-- EL PALO DE LA MÁQUINA
+
+    beq		$a0, $a1, paloCorrecto	# if $a0 == $a1 then paloCorrecto
+    
+    beq		$a1, 1, paloRojo	    # if $a1 == 1 then paloRojo
+    beq		$a1, 2, paloRojo	    # if $a1 == 2 then paloRojo
+
+    beq		$a1, 3, paloNegro	    # if $a1 == 3 then paloNegro
+    beq		$a1, 4, paloNegro	    # if $a1 == 4 then paloNegro
+
+    paloRojo:
+    la      $a0, paloEsRojo
+    li      $v0, 4
+    syscall
+    j		outComparacion				# jump to outComparacion
+    
+    paloNegro:
+    la      $a0, paloEsNegro
+    li      $v0, 4
+    syscall
+    j		outComparacion				# jump to outComparacion
+    
+    paloCorrecto:
+    la      $a0, paloAdivinado
+    li      $v0, 4
+    syscall
+
+    outComparacion:
+    lw		$ra, 0($sp)		 
+    lw		$a0, 4($sp) #<-- EL PALO DEL JUGADOR
+    lw		$a1, 8($sp) #<-- EL PALO DE LA MÁQUINA
+    addi	$sp, $sp, 8			    # $sp = $sp + 8
+    jr		$ra					    # jump to $ra
 
 
 
@@ -161,6 +230,7 @@ verificarOpcion:
 
     lw		$ra, 0($sp)		 
     lw		$a0, 4($sp) #<-- a
+    lw		$a1, 8($sp) #<-- numero maximo por teclado
     addi	$sp, $sp, 8			    # $sp = $sp + 8
     jr		$ra					    # jump to $ra
 
