@@ -15,6 +15,8 @@ juego1: .asciiz "\n\tTiene 3 oportunidades para adivinar una carta que la comput
 mostrarPalos: .asciiz "\n\tEscoja un palo:\n\t1)Corazon\n\t2)Brillo\n\t3)Trebol\n\t4)Picas\n"
 esMayor: .asciiz "\n\t¡El numero oculto es mas alto!"
 esMenor: .asciiz "\n\t¡El numero oculto es mas bajo!"
+cartaAdvinidada: .asciiz "\n\t¡Ha adivinado la carta!"
+juegoNuevo: .asciiz "\n\t¿Quiere volver a jugar?\n\t1)Sí\n\t2)No\n"
 saltoLinea: .asciiz "\n"
 .text
 
@@ -71,10 +73,13 @@ option1:
     syscall
     
     li		$s0, 0		            # $s0 = 0 Contador del bucle
-
+    li		$s6, 0		            # $s6 = 0 Contador del dinero
+    
     bucleJuego:
+        beq		$s0, 3, derrota	    # if $s0 == $s0 then derrota
+        
         # PARTE DEL PALO
-        la		$a0, inputPalo    # Muestra de Ingresar un palo al jugador
+        la		$a0, inputPalo      # Muestra de Ingresar un palo al jugador
         li		$v0, 4		
         syscall
 
@@ -132,6 +137,8 @@ option1:
         move 	$a0, $s1		# $a0 = $s1 / En $a0 el palo del jugador
         move    $a1, $s3        # $a1 = $s3 / En $a1 el palo aleatorio de la máquina
 
+        li		$s5, 0		    # $s5 = 0 / Variable para controlar la victoria, si es igual a 2 ha ganado.
+
         jal compararPalo
 
         move 	$a0, $s2		# $a0 = $s2 / En $a0 el número del jugador
@@ -139,12 +146,45 @@ option1:
 
         jal compararNumero
 
+        beq		$s5, 2, victoria	    # if $s5 == 2 then victoria
+        addi	$s0, $s0, 1			    # $s0 = $s0 + 1
+        
+        j		bucleJuego				# jump to bucleJuego
+        
         #  PARA EL PALO  
         # sll $t1,$t0,2
         # add $t1,$t1,$a0 #--> a0 posición del arreglo
         # lw $t1,0($t1)  
 
         j Exit
+
+
+
+victoria:
+    li		$s0, 0		# $s0 = 0
+    
+    la      $a0, cartaAdvinidada
+    li      $v0, 4
+    syscall
+
+    la      $a0, juegoNuevo
+    li      $v0, 4
+    syscall
+
+    li		$v0, 5		        #Agarrar input de un integer
+    syscall	
+    move 	$t0, $v0
+
+    beq		$t0, 0, finJuego	# if $t0 == 1 finJuego
+    addi	$s6, $s6, 0			# $s6 = $s6 + 0
+    
+    
+
+
+derrota:
+    la      $a0, numAdivinado
+    li      $v0, 4
+    syscall
 
 option2:
     j Exit
@@ -179,6 +219,8 @@ compararNumero:
     la      $a0, numAdivinado
     li      $v0, 4
     syscall
+    addi	$s5, $s5, 1			# $s5 = $s5 + 1
+    
 
     outComparacionNum:
     lw		$ra, 0($sp)		 
@@ -222,6 +264,8 @@ compararPalo:
     la      $a0, paloAdivinado
     li      $v0, 4
     syscall
+    addi	$s5, $s5, 1			            # $s5 = $s5 + 1
+    
 
     outComparacionPalo:
     lw		$ra, 0($sp)		 
