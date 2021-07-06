@@ -155,12 +155,7 @@ option1:
         sw $s6, arregloTOP($t0)
 
         j		bucleJuego				# jump to bucleJuego
-        
-
-        #  PARA EL PALO  
-        # sll $t1,$t0,2
-        # add $t1,$t1,$a0 #--> a0 posición del arreglo
-        # lw $t1,0($t1)  
+         
 
 victoria:
     li		$s0, 0		            # $s0 = 0
@@ -209,7 +204,7 @@ finJuego:
     li      $v0, 4
     syscall
 
-    move 	$a0, $s0		    # $a0 = $s0
+    move 	$a0, $s6		    # $a0 = $s0
     li		$v0, 1		        # $v0 = 1
     syscall
     
