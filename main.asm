@@ -210,7 +210,7 @@ option2:
     addi $t0,$zero,0  #posicion del arreglo
     reccorer: 
         bgt $t1,5,Exit
-        addi $t1,$t0,1
+        addi $t1,$t1,1
         lw $t3, arregloTOP($t0) 
         li $v0, 1 
         addi $a0, $t3, 0
