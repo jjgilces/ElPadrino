@@ -2,9 +2,9 @@
 paloA: .space 4
 numA: .space 4
 arregloTOP: .space 4
-elPadrino: .asciiz "\t---- Casino: El Padrino ----\t\n"
-mainMenu: .asciiz "\t---- Menu ----\t\n\t1)Adivina la carta\n\t2)Mejores Puntajes\n\t3)Salir\n"
-inputOption: .asciiz "\tIngrese una opcion: "
+elPadrino: .asciiz "\n\t---- Casino: El Padrino ----\t\n"
+mainMenu: .asciiz "\n\t---- Menu ----\t\n\t1)Adivina la carta\n\t2)Mejores Puntajes\n\t3)Salir\n"
+inputOption: .asciiz "\n\tIngrese una opcion: "
 inputPalo: .asciiz "\n\tIngrese un palo: "
 inputNumero: .asciiz "\tIngrese un  numero entre el 1 al 10: "
 paloAdivinado: .asciiz "\n\tEl palo de carta es correcto! "
@@ -23,15 +23,28 @@ imprimirNumero: .asciiz "\n\tNumero: "
 juegoNuevo: .asciiz "\n\t¿Quiere volver a jugar?\n\t1)Sí\n\t2)No\n"
 juegoTerminado: .asciiz "\n\tJuego Terminado. Has conseguido: "
 mensajeFinal: .asciiz "\n\tGracias por jugar."
-saltoLinea: .asciiz "\n"
+saltoLinea: .asciiz "\n" 
+tab: .asciiz "\t"
+
 .text
 
 main:
+
+    addi $t0, $zero,0 
+    addi $t1, $zero,4 
+    addi $t2, $zero,8
+    addi $t3, $zero,12  
+    sw $zero, arregloTOP($t0)
+    sw $t1, arregloTOP($t1)
+    sw $t2, arregloTOP($t2)
+    sw $t3, arregloTOP($t3)
+
     la		$a0, elPadrino      # Muestra  El Padrino
     li		$v0, 4		
     syscall
 
 menu:
+
     la		$a0, mainMenu       # Muestra de el menú principal
     li		$v0, 4		
     syscall
@@ -138,7 +151,7 @@ option1:
         beq		$s5, 2, victoria	    # if $s5 == 2 then victoria
         addi	$s0, $s0, 1			    # $s0 = $s0 + 1
         
-        addi $t0, $zero,0 
+        addi $t0, $zero,12     #Ingresa siempre al top 4
         sw $s6, arregloTOP($t0)
 
         j		bucleJuego				# jump to bucleJuego
@@ -207,15 +220,22 @@ finJuego:
     j		menu				# jump to menu
 
 option2:
+    
     addi $t0,$zero,0  #posicion del arreglo
     reccorer: 
-        bgt $t1,5,Exit
-        addi $t1,$t1,1
+        bgt $t1,6,Exit
         lw $t3, arregloTOP($t0) 
         li $v0, 1 
+        la		$a0, tab   
+        li		$v0, 4		
+        syscall
         addi $a0, $t3, 0
         syscall
-        addi $t1,$zero,0
+        la		$a0, saltoLinea   
+        li		$v0, 4		
+        syscall
+        addi $t0, $t0, 4
+        addi $t1,$t1,1
         j reccorer  
     j Exit
 
