@@ -1,7 +1,7 @@
 .data
 paloA: .space 4
 numA: .space 4
-arregloTOP: .space 4
+arregloTOP: .space 16
 elPadrino: .asciiz "\n\t---- Casino: El Padrino ----\t\n"
 mainMenu: .asciiz "\n\t---- Menu ----\t\n\t1)Adivina la carta\n\t2)Mejores Puntajes\n\t3)Salir\n"
 inputOption: .asciiz "\n\tIngrese una opcion: "
@@ -20,7 +20,7 @@ cartaAdvinidada: .asciiz "\n\t¡Ha adivinado la carta!"
 cartaNoAdivinada: .asciiz "\n\t¡No has adivinado la carta!, la carta era: "
 imprimirPalo: .asciiz "\n\tPalo: "
 imprimirNumero: .asciiz "\n\tNumero: "
-juegoNuevo: .asciiz "\n\t¿Quiere volver a jugar?\n\t1)Sí\n\t2)No\n"
+juegoNuevo: .asciiz "\n\t¿Quiere volver a jugar?\n\t1)Si\n\t2)No\n"
 juegoTerminado: .asciiz "\n\tJuego Terminado. Has conseguido: "
 mensajeFinal: .asciiz "\n\tGracias por jugar."
 saltoLinea: .asciiz "\n" 
@@ -220,15 +220,32 @@ finJuego:
     j		menu				# jump to menu
 
 option2:
-    
+    la  $t0, arregloTOP      # Copy the base address of your array into $t1
+    add $t0, $t0, 16    # 4 bytes per int * 10 ints = 40 bytes                              
+    outterLoop:             # Used to determine when we are done iterating over the Array
+        add $t1, $0, $0     # $t1 holds a flag to determine when the list is sorted
+        la  $a0, arregloTOP      # Set $a0 to the base address of the Array
+    innerLoop:                  # The inner loop will iterate over the Array checking if a swap is needed
+        lw  $t2, 0($a0)         # sets $t0 to the current element in array
+        lw  $t3, 4($a0)         # sets $t1 to the next element in array
+        slt $t5, $t2, $t3       # $t5 = 1 if $t0 < $t1
+        beq $t5, $0, continue   # if $t5 = 1, then swap them
+        add $t1, $0, 1          # if we need to swap, we need to check the list again
+        sw  $t2, 4($a0)         # store the greater numbers contents in the higher position in array (swap)
+        sw  $t3, 0($a0)         # store the lesser numbers contents in the lower position in array (swap)
+    continue:
+        addi $a0, $a0, 4            # advance the array to start at the next location from last time
+        bne  $a0, $t0, innerLoop    # If $a0 != the end of Array, jump back to innerLoop
+        bne  $t1, $0, outterLoop    # $t1 = 1, another pass is needed, jump back to outterLoop
     addi $t0,$zero,0  #posicion del arreglo
     reccorer: 
-        bgt $t1,6,Exit
+        bgt $t1,4,Exit
         lw $t3, arregloTOP($t0) 
-        li $v0, 1 
+     
         la		$a0, tab   
         li		$v0, 4		
         syscall
+        li $v0, 1 
         addi $a0, $t3, 0
         syscall
         la		$a0, saltoLinea   
@@ -238,6 +255,7 @@ option2:
         addi $t1,$t1,1
         j reccorer  
     j Exit
+
 
 
 #Función que compara el número del usuario con el de la máquina
