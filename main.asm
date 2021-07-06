@@ -204,7 +204,7 @@ finJuego:
     li      $v0, 4
     syscall
 
-    move 	$a0, $s0		    # $a0 = $s0
+    move 	$a0, $s6		    # $a0 = $s0
     li		$v0, 1		        # $v0 = 1
     syscall
     
@@ -232,10 +232,9 @@ option2:
         addi $a0, $a0, 4            # advance the array to start at the next location from last time
         bne  $a0, $t0, innerLoop    # If $a0 != the end of Array, jump back to innerLoop
         bne  $t1, $0, outterLoop    # $t1 = 1, another pass is needed, jump back to outterLoop
-    addi $t0,$zero,0  #posicion del arreglo
+    addi $t0,$zero,4  #posicion del arreglo
     reccorer: 
-        bgt $t1,4,menu
-     
+        bgt $t1,3,menu
         la		$a0, tab   
         li		$v0, 4		
         syscall
@@ -253,7 +252,6 @@ option2:
 
 
 #Función que compara el número del usuario con el de la máquina
-#
 
 compararNumero:
     addi $sp,$sp,-12
