@@ -16,7 +16,12 @@ mostrarPalos: .asciiz "\n\tEscoja un palo:\n\t1)Corazon\n\t2)Brillo\n\t3)Trebol\
 esMayor: .asciiz "\n\t¡El numero oculto es mas alto!"
 esMenor: .asciiz "\n\t¡El numero oculto es mas bajo!"
 cartaAdvinidada: .asciiz "\n\t¡Ha adivinado la carta!"
+cartaNoAdivinada: .asciiz "\n\t¡No has adivinado la carta!, la carta era: "
+imprimirPalo: .asciiz "\n\tPalo: "
+imprimirNumero: .asciiz "\n\tNumero: "
 juegoNuevo: .asciiz "\n\t¿Quiere volver a jugar?\n\t1)Sí\n\t2)No\n"
+juegoTerminado: .asciiz "\n\tJuego Terminado. Has conseguido: "
+mensajeFinal: .asciiz "\n\tGracias por jugar."
 saltoLinea: .asciiz "\n"
 .text
 
@@ -156,13 +161,10 @@ option1:
         # add $t1,$t1,$a0 #--> a0 posición del arreglo
         # lw $t1,0($t1)  
 
-        j Exit
-
-
-
 victoria:
-    li		$s0, 0		# $s0 = 0
-    
+    li		$s0, 0		            # $s0 = 0
+    addi	$s6, $s6, 100			# $s6 = $s6 + 100
+      
     la      $a0, cartaAdvinidada
     li      $v0, 4
     syscall
@@ -171,20 +173,50 @@ victoria:
     li      $v0, 4
     syscall
 
-    li		$v0, 5		        #Agarrar input de un integer
+    li		$v0, 5		            #Agarrar input de un integer
     syscall	
     move 	$t0, $v0
 
-    beq		$t0, 0, finJuego	# if $t0 == 1 finJuego
-    addi	$s6, $s6, 0			# $s6 = $s6 + 0
+    beq		$t0, 2, finJuego	    # if $t0 == 1 finJuego
+    j		bucleJuego				# jump to bucleJuego
     
-    
-
-
 derrota:
-    la      $a0, numAdivinado
+    la      $a0, cartaNoAdivinada
     li      $v0, 4
     syscall
+
+    la      $a0, imprimirPalo
+    li      $v0, 4
+    syscall
+
+    move 	$a0, $s3		# $a0 = $s3
+    li		$v0, 1		# $v0 = 1
+    syscall
+
+    la      $a0, imprimirNumero
+    li      $v0, 4
+    syscall
+
+    move 	$a0, $s4		# $a0 = $s3
+    li		$v0, 1		# $v0 = 1
+    syscall
+
+    j		finJuego				# jump to finJuego
+
+finJuego:
+    la      $a0, juegoTerminado
+    li      $v0, 4
+    syscall
+
+    move 	$a0, $s0		    # $a0 = $s0
+    li		$v0, 1		        # $v0 = 1
+    syscall
+    
+    la      $a0, mensajeFinal
+    li      $v0, 4
+    syscall
+
+    j		menu				# jump to menu
 
 option2:
     j Exit
