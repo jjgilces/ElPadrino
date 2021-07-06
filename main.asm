@@ -209,14 +209,14 @@ finJuego:
 option2:
     addi $t0,$zero,0  #posicion del arreglo
     reccorer: 
-        bgt $t1,5,exit
+        bgt $t1,5,Exit
         addi $t1,$t0,1
         lw $t3, arregloTOP($t0) 
         li $v0, 1 
         addi $a0, $t3, 0
         syscall
         addi $t1,$zero,0
-        j option2  
+        j reccorer  
     j Exit
 
 
