@@ -1,6 +1,6 @@
 .data
-paloA: .space 4
-numA: .space 4
+paloA: .space 4  #se almacenará el palo aleatorio de la computadora 
+numA: .space 4  #se almacenará el numero aleatorio de la computadora 
 arregloTOP: .space 16
 elPadrino: .asciiz "\n\t---- Casino: El Padrino ----\t\n"
 mainMenu: .asciiz "\n\t---- Menu ----\t\n\t1)Adivina la carta\n\t2)Mejores Puntajes\n\t3)Salir\n"
@@ -29,7 +29,7 @@ tab: .asciiz "\t"
 .text
 
 main:
-
+    # Inicialización del arreglo 
     addi $t0, $zero,0 
     addi $t1, $zero,4 
     addi $t2, $zero,8
@@ -37,7 +37,7 @@ main:
     sw $zero, arregloTOP($t0)
     sw $zero, arregloTOP($t1)
     sw $zero, arregloTOP($t2)
-    sw $zero, arregloTOP($t3)
+    sw $zero, arregloTOP($t3) #el 4to lugar es para lo que ingrese el usuario
 
     la		$a0, elPadrino      # Muestra  El Padrino
     li		$v0, 4		
@@ -57,9 +57,9 @@ menu:
     syscall
     move 	$t0, $v0		    # $t0 = $v0
 
-    beq		$t0, 1, option1	    # if $t0 == 1 then option1
-    beq		$t0, 2, option2	    # if $t0 == 2 then option2
-    beq		$t0, 3, Exit	    # if $t0 == 3 then Exit
+    beq		$t0, 1, option1	    # si $t0 == 1 va a  option1
+    beq		$t0, 2, option2	    # si $t0 == 2 va aen option2
+    beq		$t0, 3, Exit	    # si $t0 == 3 va a Exit
     j error
 
 option1:
@@ -67,23 +67,23 @@ option1:
     la      $a0, juego1
     syscall
 
-    #CREAR EL  NUMERO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
+    #CREAR EL  NUMERO ALEATORIO 
     li		$a1, 10		        #Límite superior del número aleatorio en 10 sin incluir
     li		$v0, 42		        #Generar número aleatorio en $a0
     syscall
     
-    addi	$a1, $a1, 1			# $a1 = $a1 + 1 / Sumamos 1 para tener un random entre 1 y 10, en vez de 0 y 9
+    addi	$a0, $a0, 1			# $a1 = $a1 + 1 / Sumamos 1 para tener un random entre 1 y 10, en vez de 0 y 9
     
-    sw $a0, numA
+    sw $a0, numA  #almacena el valor en la variable global
 
-    #CREAR EL PALO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
+    #CREAR EL PALO ALEATORIO 
     li		$a1, 4		        #Límite superior del número aleatorio en 11 sin incluir
     li		$v0, 42		        #Generar número aleatorio en $a0
     syscall
 
     addi	$a0, $a0, 1			# $a0 = $a0 + 1 / Sumamos 1 para tener un random entre 1 y 4, en vez de 0 y 3
     
-    sw $a0, paloA
+    sw $a0, paloA   #almacena el valor en la variable global
     
     #TODO 
 
@@ -95,7 +95,7 @@ option1:
     li		$s6, 0		            # $s6 = 0 Contador del dinero
     
     bucleJuego:
-        beq		$s0, 3, derrota	    # if $s0 == $s0 then derrota
+        beq		$s0, 3, derrota	    # si  $s0 == $s0 entonces  derrota
         
         # PARTE DEL PALO
         la		$a0, inputPalo      # Muestra de Ingresar un palo al jugador
@@ -130,11 +130,6 @@ option1:
         lw  	$s3, paloA		    # Se carga paloA en $s3
         lw      $s4, numA           # Se carga numA en $s4
   
-        
-        #t0 palo usuario 
-        #t1 numero usuario 
-        #t2 numero aleatorio
-        # jal compararPalo
 
         move 	$a0, $s1		# $a0 = $s1 / En $a0 el palo del jugador
         move    $a1, $s3        # $a1 = $s3 / En $a1 el palo aleatorio de la máquina
@@ -165,16 +160,20 @@ victoria:
     li      $v0, 4
     syscall
 
-    la      $a0, juegoNuevo
+    la      $a0, juegoNuevo   # Presenta al usuario si desea jugar de nuevo
     li      $v0, 4
+    syscall
+
+    la		$a0, inputOption    # Muestra de Ingresar una opción
+    li		$v0, 4		
     syscall
 
     li		$v0, 5		            #Agarrar input de un integer
     syscall	
     move 	$t0, $v0
 
-    beq		$t0, 2, finJuego	    # if $t0 == 1 finJuego
-    j		bucleJuego				# jump to bucleJuego
+    beq		$t0, 2, finJuego	    # si $t0 == 1 finJuego
+    j		bucleJuego				# regresa al juego 
     
 derrota:
     la      $a0, cartaNoAdivinada
@@ -234,7 +233,7 @@ option2:
         bne  $t1, $0, outterLoop    # $t1 = 1, another pass is needed, jump back to outterLoop
     addi $t0,$zero,4  #posicion del arreglo
     reccorer: 
-        bgt $t1,3,menu
+        bgt $t1,2,menu
         la		$a0, tab   
         li		$v0, 4		
         syscall
