@@ -14,13 +14,13 @@ paloEsNegro: .asciiz "\n\tEl palo de la carta es color Negro! "
 mensajeError: .asciiz "\tIngrese un numero que sea valido\n"
 juego1: .asciiz "\n\tTiene 3 oportunidades para adivinar una carta que la computadora ha seleccionado al azar.\n\tUna carta esta compuesta de un numero entre 1-10 y un palo (tipo de carta).\n"
 mostrarPalos: .asciiz "\n\tEscoja un palo:\n\t1)Corazon\n\t2)Brillo\n\t3)Trebol\n\t4)Picas\n"
-esMayor: .asciiz "\n\t¡El numero oculto es mas alto!"
-esMenor: .asciiz "\n\t¡El numero oculto es mas bajo!"
-cartaAdvinidada: .asciiz "\n\t¡Ha adivinado la carta!"
-cartaNoAdivinada: .asciiz "\n\t¡No has adivinado la carta!, la carta era: "
+esMayor: .asciiz "\n\tEl numero oculto es mas alto!"
+esMenor: .asciiz "\n\tEl numero oculto es mas bajo!"
+cartaAdvinidada: .asciiz "\n\tHa adivinado la carta!"
+cartaNoAdivinada: .asciiz "\n\tNo has adivinado la carta!, la carta era: "
 imprimirPalo: .asciiz "\n\tPalo: "
 imprimirNumero: .asciiz "\n\tNumero: "
-juegoNuevo: .asciiz "\n\t¿Quiere volver a jugar?\n\t1)Si\n\t2)No\n"
+juegoNuevo: .asciiz "\n\tQuiere volver a jugar?\n\t1)Si\n\t2)No\n"
 juegoTerminado: .asciiz "\n\tJuego Terminado. Has conseguido: "
 mensajeFinal: .asciiz "\n\tGracias por jugar."
 saltoLinea: .asciiz "\n" 
@@ -35,9 +35,9 @@ main:
     addi $t2, $zero,8
     addi $t3, $zero,12  
     sw $zero, arregloTOP($t0)
-    sw $t1, arregloTOP($t1)
-    sw $t2, arregloTOP($t2)
-    sw $t3, arregloTOP($t3)
+    sw $zero, arregloTOP($t1)
+    sw $zero, arregloTOP($t2)
+    sw $zero, arregloTOP($t3)
 
     la		$a0, elPadrino      # Muestra  El Padrino
     li		$v0, 4		
