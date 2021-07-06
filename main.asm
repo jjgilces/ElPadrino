@@ -77,7 +77,7 @@ option1:
     sw $a0, numA
 
     #CREAR EL PALO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
-    li		$a1, 4		        #Límite superior del número aleatorio en 11 sin incluir
+    li		$a1, 4		        #Límite superior del número aleatorio en 4 sin incluir
     li		$v0, 42		        #Generar número aleatorio en $a0
     syscall
 
@@ -174,6 +174,24 @@ victoria:
     move 	$t0, $v0
 
     beq		$t0, 2, finJuego	    # if $t0 == 1 finJuego
+    #CREAR EL  NUMERO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
+    li		$a1, 10		        #Límite superior del número aleatorio en 10 sin incluir
+    li		$v0, 42		        #Generar número aleatorio en $a0
+    syscall
+    
+    addi	$a1, $a1, 1			# $a1 = $a1 + 1 / Sumamos 1 para tener un random entre 1 y 10, en vez de 0 y 9
+    
+    sw $a0, numA
+
+    #CREAR EL PALO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
+    li		$a1, 4		        #Límite superior del número aleatorio en 4 sin incluir
+    li		$v0, 42		        #Generar número aleatorio en $a0
+    syscall
+
+    addi	$a0, $a0, 1			# $a0 = $a0 + 1 / Sumamos 1 para tener un random entre 1 y 4, en vez de 0 y 3
+    
+    sw $a0, paloA
+    
     j		bucleJuego				# jump to bucleJuego
     
 derrota:
