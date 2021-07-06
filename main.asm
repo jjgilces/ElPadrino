@@ -151,7 +151,7 @@ option1:
         beq		$s5, 2, victoria	    # if $s5 == 2 then victoria
         addi	$s0, $s0, 1			    # $s0 = $s0 + 1
         
-        addi $t0, $zero,12     #Ingresa siempre al top 4
+        addi $t0, $zero,0     #Ingresa siempre al top 4
         sw $s6, arregloTOP($t0)
 
         j		bucleJuego				# jump to bucleJuego
@@ -204,7 +204,7 @@ finJuego:
     li      $v0, 4
     syscall
 
-    move 	$a0, $s6		    # $a0 = $s0
+    move 	$a0, $s0		    # $a0 = $s0
     li		$v0, 1		        # $v0 = 1
     syscall
     
@@ -234,12 +234,13 @@ option2:
         bne  $t1, $0, outterLoop    # $t1 = 1, another pass is needed, jump back to outterLoop
     addi $t0,$zero,0  #posicion del arreglo
     reccorer: 
-        bgt $t1,4,Exit
-        lw $t3, arregloTOP($t0) 
+        bgt $t1,4,menu
      
         la		$a0, tab   
         li		$v0, 4		
         syscall
+
+        lw $t3, arregloTOP($t0) 
         li $v0, 1 
         addi $a0, $t3, 0
         syscall
@@ -249,8 +250,6 @@ option2:
         addi $t0, $t0, 4
         addi $t1,$t1,1
         j reccorer  
-    j Exit
-
 
 
 #Función que compara el número del usuario con el de la máquina
