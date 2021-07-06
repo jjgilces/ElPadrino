@@ -211,7 +211,7 @@ option2:
     reccorer: 
         bgt $t1,5,exit
         addi $t1,$t0,1
-        lv $t3, arregloTOP($t0) 
+        lw $t3, arregloTOP($t0) 
         li $v0, 1 
         addi $a0, $t3, 0
         syscall
