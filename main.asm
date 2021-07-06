@@ -172,8 +172,26 @@ victoria:
     syscall	
     move 	$t0, $v0
 
-    beq		$t0, 2, finJuego	    # si $t0 == 1 finJuego
-    j		bucleJuego				# regresa al juego 
+    beq		$t0, 2, finJuego	    # if $t0 == 1 finJuego
+    #CREAR EL  NUMERO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
+    li		$a1, 10		        #Límite superior del número aleatorio en 10 sin incluir
+    li		$v0, 42		        #Generar número aleatorio en $a0
+    syscall
+    
+    addi	$a0, $a0, 1			# $a1 = $a1 + 1 / Sumamos 1 para tener un random entre 1 y 10, en vez de 0 y 9
+    
+    sw $a0, numA
+
+    #CREAR EL PALO ALEATORIO Y GUARDRLO EN LA VARIABLE GLOBAL
+    li		$a1, 4		        #Límite superior del número aleatorio en 4 sin incluir
+    li		$v0, 42		        #Generar número aleatorio en $a0
+    syscall
+
+    addi	$a0, $a0, 1			# $a0 = $a0 + 1 / Sumamos 1 para tener un random entre 1 y 4, en vez de 0 y 3
+    
+    sw $a0, paloA
+    
+    j		bucleJuego				# jump to bucleJuego
     
 derrota:
     la      $a0, cartaNoAdivinada
@@ -196,7 +214,7 @@ derrota:
     li		$v0, 1		# $v0 = 1
     syscall
 
-    j		finJuego				# jump to finJuego
+    j		finJuego				# va a terminar el juego  finJuego
 
 finJuego:
     la      $a0, juegoTerminado
@@ -214,23 +232,23 @@ finJuego:
     j		menu				# jump to menu
 
 option2:
-    la  $t0, arregloTOP      # Copy the base address of your array into $t1
-    add $t0, $t0, 16    # 4 bytes per int * 10 ints = 40 bytes                              
-    outterLoop:             # Used to determine when we are done iterating over the Array
-        add $t1, $0, $0     # $t1 holds a flag to determine when the list is sorted
-        la  $a0, arregloTOP      # Set $a0 to the base address of the Array
-    innerLoop:                  # The inner loop will iterate over the Array checking if a swap is needed
-        lw  $t2, 0($a0)         # sets $t0 to the current element in array
-        lw  $t3, 4($a0)         # sets $t1 to the next element in array
-        slt $t5, $t2, $t3       # $t5 = 1 if $t0 < $t1
-        beq $t5, $0, continue   # if $t5 = 1, then swap them
-        add $t1, $0, 1          # if we need to swap, we need to check the list again
-        sw  $t2, 4($a0)         # store the greater numbers contents in the higher position in array (swap)
-        sw  $t3, 0($a0)         # store the lesser numbers contents in the lower position in array (swap)
+    la  $t0, arregloTOP      # Copia la dirección base de su matriz en $t1
+    add $t0, $t0, 16                         
+    outterLoop:             # Se usa para determinar cuándo terminamos de iterar sobre el arreglo
+        add $t1, $0, $0     
+        la  $a0, arregloTOP      
+    innerLoop:                  # El bucle interno iterará sobre la matriz verificando si se necesita un intercambio
+        lw  $t2, 0($a0)         
+        lw  $t3, 4($a0)         
+        slt $t5, $t2, $t3       # $t5 = 1 si $t0 < $t1
+        beq $t5, $0, continue   # so $t5 = 1, entonces lo cambia 
+        add $t1, $0, 1          
+        sw  $t2, 4($a0)         # almacenar los contenidos de números mayores en la posición más alta en la matriz (intercambio)
+        sw  $t3, 0($a0)         # almacenar el contenido de los números menores en la posición inferior en la matriz (intercambio)
     continue:
-        addi $a0, $a0, 4            # advance the array to start at the next location from last time
-        bne  $a0, $t0, innerLoop    # If $a0 != the end of Array, jump back to innerLoop
-        bne  $t1, $0, outterLoop    # $t1 = 1, another pass is needed, jump back to outterLoop
+        addi $a0, $a0, 4            # avanzar la matriz para comenzar en la siguiente ubicación desde la última vez
+        bne  $a0, $t0, innerLoop    
+        bne  $t1, $0, outterLoop    
     addi $t0,$zero,4  #posicion del arreglo
     reccorer: 
         bgt $t1,2,menu
@@ -242,6 +260,7 @@ option2:
         li $v0, 1 
         addi $a0, $t3, 0
         syscall
+        
         la		$a0, saltoLinea   
         li		$v0, 4		
         syscall
@@ -251,7 +270,6 @@ option2:
 
 
 #Función que compara el número del usuario con el de la máquina
-
 compararNumero:
     addi $sp,$sp,-12
     sw $ra, 0($sp)
