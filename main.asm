@@ -1,7 +1,7 @@
 .data
 paloA: .space 4  #se almacenará el palo aleatorio de la computadora 
 numA: .space 4  #se almacenará el numero aleatorio de la computadora 
-arregloTOP: .space 16
+arregloTOP: .space 12
 elPadrino: .asciiz "\n\t---- Casino: El Padrino ----\t\n"
 mainMenu: .asciiz "\n\t---- Menu ----\t\n\t1)Adivina la carta\n\t2)Mejores Puntajes\n\t3)Salir\n"
 inputOption: .asciiz "\n\tIngrese una opcion: "
@@ -37,7 +37,7 @@ main:
     sw $zero, arregloTOP($t0)
     sw $zero, arregloTOP($t1)
     sw $zero, arregloTOP($t2)
-    sw $zero, arregloTOP($t3) #el 4to lugar es para lo que ingrese el usuario
+    sw $zero, arregloTOP($t3) #el  lugar es para lo que ingrese el usuario
 
     la		$a0, elPadrino      # Muestra  El Padrino
     li		$v0, 4		
@@ -146,8 +146,7 @@ option1:
         beq		$s5, 2, victoria	    # if $s5 == 2 then victoria
         addi	$s0, $s0, 1			    # $s0 = $s0 + 1
         
-        addi $t0, $zero,0     #Ingresa siempre al top 4
-        sw $s6, arregloTOP($t0)
+      
 
         j		bucleJuego				# jump to bucleJuego
          
@@ -194,6 +193,7 @@ victoria:
     j		bucleJuego				# jump to bucleJuego
     
 derrota:
+
     la      $a0, cartaNoAdivinada
     li      $v0, 4
     syscall
@@ -217,6 +217,8 @@ derrota:
     j		finJuego				# va a terminar el juego  finJuego
 
 finJuego:
+    addi $t0, $zero,4     #Ingresa siempre al top 4
+    sw $s6, arregloTOP($t0)
     la      $a0, juegoTerminado
     li      $v0, 4
     syscall
@@ -248,23 +250,24 @@ option2:
     continue:
         addi $a0, $a0, 4            # avanzar la matriz para comenzar en la siguiente ubicación desde la última vez
         bne  $a0, $t0, innerLoop    
-        bne  $t1, $0, outterLoop    
-    addi $t0,$zero,4  #posicion del arreglo
+        bne  $t1, $0, outterLoop 
+
+    addi $t6,$zero,4  #posicion del arreglo
     reccorer: 
         bgt $t1,2,menu
         la		$a0, tab   
         li		$v0, 4		
         syscall
 
-        lw $t3, arregloTOP($t0) 
+        lw $t7, arregloTOP($t6) 
         li $v0, 1 
-        addi $a0, $t3, 0
+        addi $a0, $t7, 0
         syscall
         
         la		$a0, saltoLinea   
         li		$v0, 4		
         syscall
-        addi $t0, $t0, 4
+        addi $t6, $t6, 4
         addi $t1,$t1,1
         j reccorer  
 
