@@ -1,15 +1,16 @@
 .data
 paloA: .space 4
 numA: .space 4
+arregloTOP: .space 4
 elPadrino: .asciiz "\t---- Casino: El Padrino ----\t\n"
-mainMenu: .asciiz "\t---- Menu ----\t\n\t1)Adivina la carta\n\t2)Tabla de Posiciones\n\t3)Salir\n"
+mainMenu: .asciiz "\t---- Menu ----\t\n\t1)Adivina la carta\n\t2)Mejores Puntajes\n\t3)Salir\n"
 inputOption: .asciiz "\tIngrese una opcion: "
-inputPalo: .asciiz "\tIngrese un palo: "
+inputPalo: .asciiz "\n\tIngrese un palo: "
 inputNumero: .asciiz "\tIngrese un  numero entre el 1 al 10: "
-paloAdivinado: .asciiz "\n\t¡El palo de carta es correcto! "
-numAdivinado: .asciiz "\n\t¡El numero de carta es correcto! "
-paloEsRojo: .asciiz "\n\t¡El palo de la carta es color Rojo! "
-paloEsNegro: .asciiz "\n\t¡El palo de la carta es color Negro! "
+paloAdivinado: .asciiz "\n\tEl palo de carta es correcto! "
+numAdivinado: .asciiz "\n\tEl numero de carta es correcto! "
+paloEsRojo: .asciiz "\n\tEl palo de la carta es color Rojo! "
+paloEsNegro: .asciiz "\n\tEl palo de la carta es color Negro! "
 mensajeError: .asciiz "\tIngrese un numero que sea valido\n"
 juego1: .asciiz "\n\tTiene 3 oportunidades para adivinar una carta que la computadora ha seleccionado al azar.\n\tUna carta esta compuesta de un numero entre 1-10 y un palo (tipo de carta).\n"
 mostrarPalos: .asciiz "\n\tEscoja un palo:\n\t1)Corazon\n\t2)Brillo\n\t3)Trebol\n\t4)Picas\n"
@@ -115,24 +116,7 @@ option1:
         
         lw  	$s3, paloA		    # Se carga paloA en $s3
         lw      $s4, numA           # Se carga numA en $s4
-
-        #############IMPRESIÓN DE VERIFICACION#########################
-        li		$v0, 1		    # $v0 = 1
-        move 	$a0, $s1		# $a0 = $s1
-        syscall
-
-        li		$v0, 1		    # $v0 = 1
-        move 	$a0, $s2		# $a0 = $s1
-        syscall
-
-        li		$v0, 1		    # $v0 = 1
-        move 	$a0, $s3		# $a0 = $s1
-        syscall
-
-        li		$v0, 1		    # $v0 = 1
-        move 	$a0, $s4		# $a0 = $s1
-        syscall
-        #################################################################
+  
         
         #t0 palo usuario 
         #t1 numero usuario 
@@ -154,8 +138,12 @@ option1:
         beq		$s5, 2, victoria	    # if $s5 == 2 then victoria
         addi	$s0, $s0, 1			    # $s0 = $s0 + 1
         
+        addi $t0, $zero,0 
+        sw $s6, arregloTOP($t0)
+
         j		bucleJuego				# jump to bucleJuego
         
+
         #  PARA EL PALO  
         # sll $t1,$t0,2
         # add $t1,$t1,$a0 #--> a0 posición del arreglo
@@ -219,6 +207,16 @@ finJuego:
     j		menu				# jump to menu
 
 option2:
+    addi $t0,$zero,0  #posicion del arreglo
+    reccorer: 
+        bgt $t1,5,exit
+        addi $t1,$t0,1
+        lv $t3, arregloTOP($t0) 
+        li $v0, 1 
+        addi $a0, $t3, 0
+        syscall
+        addi $t1,$zero,0
+        j option2  
     j Exit
 
 
@@ -305,6 +303,7 @@ compararPalo:
     lw		$a1, 8($sp) #<-- EL PALO DE LA MÁQUINA
     addi	$sp, $sp, 8			    # $sp = $sp + 8
     jr		$ra					    # jump to $ra
+
 
 
 
